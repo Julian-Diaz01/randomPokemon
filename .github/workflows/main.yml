@@ -16,7 +16,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '2.2.3' # Change this to your desired Flutter version
+          flutter-version: '3.10.2' # Change this to your desired Flutter version
 
       - name: Set up Keystore
         run: |
