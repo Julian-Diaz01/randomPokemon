@@ -28,8 +28,16 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Get the latest tag
+        id: get_latest_tag
+        run: echo ::set-output name=TAG::$(git describe --tags --abbrev=0)
+
+      - name: Calculate build number
+        id: calculate_build_number
+        run: echo ::set-output name=BUILD_NUMBER::${GITHUB_RUN_NUMBER:-1}
+
       - name: Build APK
-        run: flutter build apk --release --build-name=$GITHUB_RUN_NUMBER --build-number=$GITHUB_RUN_ID --dart-define=KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD --dart-define=KEY_ALIAS=$KEY_ALIAS --dart-define=KEY_PASSWORD=$KEY_PASSWORD
+        run: flutter build apk --release --build-name=${{ steps.calculate_build_number.outputs.BUILD_NUMBER }} --build-number=${{ steps.calculate_build_number.outputs.BUILD_NUMBER }} --dart-define=KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD --dart-define=KEY_ALIAS=$KEY_ALIAS --dart-define=KEY_PASSWORD=$KEY_PASSWORD
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v2
