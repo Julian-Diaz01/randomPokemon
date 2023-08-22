@@ -1,0 +1,38 @@
+name: Flutter Android CI/CD
+
+on:
+  push:
+    branches:
+      - main # Change this to the branch you want to trigger the workflow on
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '2.2.3' # Change this to your desired Flutter version
+
+      - name: Set up Keystore
+        run: |
+          echo ${{ secrets.KEYSTORE_FILE_BASE64 }} | base64 --decode > keystore_name.keystore
+          KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS=${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release --build-name=$GITHUB_RUN_NUMBER --build-number=$GITHUB_RUN_ID --dart-define=KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD --dart-define=KEY_ALIAS=$KEY_ALIAS --dart-define=KEY_PASSWORD=$KEY_PASSWORD
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
